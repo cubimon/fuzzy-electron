@@ -31,6 +31,7 @@ a {
 	font-size: 18px;
 	color: #eeeeee;
 	display: block;
+	word-wrap: break-word;
 }
 
 .focus {

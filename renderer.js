@@ -70,6 +70,7 @@ class SearchFilter {
 		this.elements = []
 		options.innerHTML = ""
 		for (let value of this.values) {
+			if (value.length === 0) continue
 			if (value.includes(inputValue)) {
 				this.visibleValues.push(value)
 				let option = document.createElement('li')
