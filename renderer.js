@@ -5,9 +5,10 @@ window.addEventListener('load', () => {
 class SearchFilter {
 
 	constructor() {
+		this.values = []
+		this.visibleValues = []
 		this.elements = []
-		this.visibleElements = []
-		this.focusIndex = []
+		this.focusIndex = 0
 		let input = document.getElementById("input")
 		input.addEventListener('keyup', () => this.filterOptions())
 		document.addEventListener('keydown', (event) => this.keyInput(event))
@@ -17,24 +18,12 @@ class SearchFilter {
 
 	updateOptions(values) {
 		let options = document.getElementById('options')
-		options.innerHTML = "";
+		options.innerHTML = ""
+		this.values = values
+		this.visibleValues = []
 		this.elements = []
-		this.visibleElements = []
 		this.focusIndex = 0
-		for (let value of values) {
-			if (value.length == 0) continue
-			let option = document.createElement('li')
-			let a = document.createElement('a');
-			a.href = "#"
-			a.innerText = value
-			a.addEventListener('click', 
-				(event) => this.selectOption(event.currentTarget.innerText))
-			option.appendChild(a)
-			options.append(option)
-			this.elements.push(a)
-			this.visibleElements.push(a)
-		}
-		this.focus()
+		this.filterOptions()
 	}
 
 	keyInput(event) {
@@ -60,7 +49,7 @@ class SearchFilter {
 			}
 		}
 		if (event.key == 'Enter') {
-			this.selectOption(this.visibleElements[this.focusIndex].innerText)
+			this.selectOption(this.elements[this.focusIndex].innerText)
 			return
 		}
 		if (event.key == 'Escape') {
@@ -75,39 +64,51 @@ class SearchFilter {
 	}
 
 	filterOptions() {
-		let value = document.getElementById("input").value
-		this.visibleElements = []
-		for (let element of this.elements) {
-			let visible = element.innerText.includes(value)
-			if (visible) this.visibleElements.push(element)
-			element.parentElement.style.display = visible ? "" : "none"
+		let inputValue = document.getElementById("input").value
+		let options = document.getElementById('options')
+		this.visibleValues = []
+		this.elements = []
+		options.innerHTML = ""
+		for (let value of this.values) {
+			if (value.includes(inputValue)) {
+				this.visibleValues.push(value)
+				let option = document.createElement('li')
+				let a = document.createElement('a')
+				a.href = "#"
+				a.innerText = value
+				a.addEventListener('click',
+					(event) => this.selectOption(event.currentTarget.innerText))
+				option.appendChild(a)
+				this.elements.push(a)
+				options.append(option)
+			}
 		}
 		if (!this.focusIsValid())
-			this.focusIndex = this.visibleElements.length - 1
+			this.focusIndex = this.elements.length - 1
 		this.focus()
 	}
 
 	focusPrev() {
-		this.focusIndex += this.visibleElements.length
-		this.focusIndex = (this.focusIndex - 1) % this.visibleElements.length
+		this.focusIndex += this.elements.length
+		this.focusIndex = (this.focusIndex - 1) % this.elements.length
 		this.focus()
 	}
 
 	focusNext() {
-		this.focusIndex += this.visibleElements.length
-		this.focusIndex = (this.focusIndex + 1) % this.visibleElements.length
+		this.focusIndex += this.elements.length
+		this.focusIndex = (this.focusIndex + 1) % this.elements.length
 		this.focus()
 	}
 
 	focusIsValid() {
 		return this.focusIndex >= 0
-			&& this.focusIndex < this.visibleElements.length
+			&& this.focusIndex < this.elements.length
 	}
 
 	focus() {
-		if (this.focusIsValid) {
+		if (this.focusIsValid()) {
 			this.elements.forEach(element => element.classList.remove("focus"))
-			this.visibleElements[this.focusIndex].classList.add("focus")
+			this.elements[this.focusIndex].classList.add("focus")
 		}
 	}
 
